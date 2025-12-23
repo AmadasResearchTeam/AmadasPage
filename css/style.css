@@ -19,22 +19,21 @@ html, body {
 a{ color: inherit; text-decoration: none; }
 .container{ width: min(1100px, 92%); margin: 0 auto; }
 
-
 body{
-  padding-top: 64px;     /* giữ để chừa chỗ cho header fixed */
-  min-height: 100vh;     /* quan trọng */
-  display: flex;         /* quan trọng */
-  flex-direction: column;/* quan trọng */
+  padding-top: 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 main.page{
-  flex: 1;               /* quan trọng: nội dung giãn ra để footer xuống đáy */
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .site-header{
-  position: fixed;    
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -47,14 +46,12 @@ main.page{
   transform: translateY(-12px);
   opacity: 0;
   animation: navEnter .45s ease forwards;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
 @keyframes navEnter{
   to { transform: translateY(0); opacity: 1; }
-}
-
-.site-header{
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
 /* Căn hàng trong header */
@@ -64,6 +61,8 @@ main.page{
   justify-content: space-between;
   padding: 12px 0;
   gap: 16px;
+
+  position: relative; /* để dropdown mobile (absolute) bám đúng khối này */
 }
 
 /* Brand */
@@ -123,7 +122,6 @@ main.page{
   height: 50px;
 }
 
-
 .hero-overlay{
   position:absolute;
   inset:0;
@@ -145,7 +143,7 @@ main.page{
 }
 
 .hero-content{
-  text-align:center;
+  text-align:center;       /* chỉ để h1 ở giữa */
   padding: 28px 0 8px;
 }
 
@@ -155,12 +153,29 @@ main.page{
   font-weight: 800;
 }
 
+/* ĐOẠN TEXT: justify + dòng cuối sát trái */
 .hero-text{
-  margin: 0 auto 12px;
-  max-width: 900px;
   line-height: 1.8;
   color: var(--muted);
   font-size: 14.5px;
+
+  max-width: none;
+  margin: 0 0 12px;
+
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: left;     /* QUAN TRỌNG: không cho dòng cuối căn giữa */
+
+  hyphens: auto;
+}
+
+/* Mobile: không justify để dễ đọc */
+@media (max-width: 720px){
+  .hero-text{
+    text-align: left;
+    text-align-last: auto;
+    hyphens: none;
+  }
 }
 
 .section{
