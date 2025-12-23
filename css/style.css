@@ -237,67 +237,72 @@ main.page{
   background: rgba(255,255,255,.08);
 }
 
-/* Mobile nhỏ: nav xuống dòng dễ nhìn */
 @media (max-width: 720px){
   body{ padding-top: 76px; }
   .nav{ gap: 10px; }
 }
 
-/* ===== Burger button ===== */
-.nav-toggle{
-  display: none;            /* desktop: ẩn */
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  backdrop-filter: blur(8px);
-
-  cursor: pointer;
+.site-header .nav-wrap{
   position: relative;
-  padding: 0;
-
-  /* căn giữa 3 line */
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 14px;
 }
 
-/* vòng sáng nhẹ */
-.nav-toggle::after{
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.14), transparent 55%);
-  opacity: .6;
-  pointer-events: none;
+/* ===== Burger button ===== */
+.nav-toggle{
+  display: none;        
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;       
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+
+  box-shadow: 0 10px 26px rgba(0,0,0,.32);
+  cursor: pointer;
+
+  position: relative;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform .15s ease, background .15s ease, border-color .15s ease;
+}
+
+.nav-toggle:hover{
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,255,255,.24);
+  transform: translateY(-1px);
+}
+
+.nav-toggle:active{
+  transform: translateY(0);
+}
+
+.nav-toggle:focus-visible{
+  outline: 2px solid rgba(255,255,255,.35);
+  outline-offset: 3px;
 }
 
 /* 3 line */
 .nav-toggle span{
   position: absolute;
-  width: 20px;
+  width: 18px;
   height: 2px;
   border-radius: 999px;
   background: rgba(255,255,255,.92);
   transition: transform .22s ease, opacity .18s ease, width .22s ease;
 }
 
-.nav-toggle span:nth-child(1){ transform: translateY(-7px); }
-.nav-toggle span:nth-child(2){ transform: translateY(0);   width: 16px; opacity: .85; }
-.nav-toggle span:nth-child(3){ transform: translateY(7px);  }
-
-/* hover đẹp hơn */
-.nav-toggle:hover{
-  border-color: rgba(255,255,255,.22);
-  background: rgba(255,255,255,.09);
-}
-
-/* OPEN -> X (mượt, cân) */
+.nav-toggle span:nth-child(1){ transform: translateY(-6px); }
+.nav-toggle span:nth-child(2){ transform: translateY(0);   width: 14px; opacity: .85; }
+.nav-toggle span:nth-child(3){ transform: translateY(6px);  }
 .nav-toggle.is-open span:nth-child(1){
   transform: translateY(0) rotate(45deg);
-  width: 22px;
+  width: 20px;
 }
 .nav-toggle.is-open span:nth-child(2){
   opacity: 0;
@@ -305,45 +310,54 @@ main.page{
 }
 .nav-toggle.is-open span:nth-child(3){
   transform: translateY(0) rotate(-45deg);
-  width: 22px;
+  width: 20px;
 }
 
-/* ===== Mobile behavior ===== */
+/* ===== Mobile menu behavior ===== */
 @media (max-width: 720px){
   .nav-toggle{ display: inline-flex; }
 
   .nav{
     position: absolute;
-    top: calc(100% + 10px);
-    right: 0;                 /* bám theo nav-wrap */
+    top: calc(100% + 12px);
+    right: 0;
     width: min(320px, 92vw);
 
     display: flex;
     flex-direction: column;
     gap: 6px;
 
-    background: rgba(20,20,22,.98);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 14px;
     padding: 10px;
-    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(18,18,20,.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
 
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-8px);
+    transform: translateY(-8px) scale(.98);
     pointer-events: none;
-    transition: .18s ease;
+    transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+    z-index: 999;
   }
 
   .nav.is-open{
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     pointer-events: auto;
   }
 
   .nav-link{
-    padding: 10px 10px;
-    border-radius: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    transition: background .15s ease, transform .15s ease;
+  }
+
+  .nav-link:hover{
+    background: rgba(255,255,255,.08);
+    transform: translateX(2px);
   }
 }

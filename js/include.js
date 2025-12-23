@@ -12,10 +12,16 @@ async function loadPartial(selector, url) {
 function getRootPrefix() {
   let path = window.location.pathname.split("?")[0].split("#")[0];
   const parts = path.split("/").filter(Boolean);
-  parts.pop(); // bỏ file name
+
+  // Nếu segment cuối có dấu "." thì mới coi là file (vd index.html)
+  const last = parts[parts.length - 1] || "";
+  const isFile = last.includes(".");
+
+  if (isFile) parts.pop(); // chỉ pop khi đúng là file
   if (parts.length === 0) return "";
   return Array(parts.length).fill("..").join("/");
 }
+
 
 function rewriteHeaderLinks(root) {
   const header = document.querySelector(".site-header");
