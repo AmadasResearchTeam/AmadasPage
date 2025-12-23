@@ -153,7 +153,7 @@ main.page{
   font-weight: 800;
 }
 
-/* ĐOẠN TEXT: justify + dòng cuối sát trái */
+/* ĐOẠN TEXT: justify + dòng cuối sát trái (áp dụng mọi màn hình) */
 .hero-text{
   line-height: 1.8;
   color: var(--muted);
@@ -164,18 +164,22 @@ main.page{
 
   text-align: justify;
   text-justify: inter-word;
-  text-align-last: left;     /* QUAN TRỌNG: không cho dòng cuối căn giữa */
+  text-align-last: left;
 
   hyphens: auto;
 }
 
-/* Mobile: không justify để dễ đọc */
+/* Mobile/Tablet: GIỮ justify như laptop (không đổi sang left nữa) */
 @media (max-width: 720px){
   .hero-text{
-    text-align: left;
-    text-align-last: auto;
-    hyphens: none;
+    text-align: justify;
+    text-justify: inter-word;
+    text-align-last: left;
+    hyphens: auto;
   }
+
+  body{ padding-top: 76px; }
+  .nav{ gap: 10px; }
 }
 
 .section{
@@ -201,7 +205,6 @@ main.page{
   display: inline-flex;
   align-items: center;
 }
-
 
 .has-submenu .submenu{
   position: absolute;
@@ -239,7 +242,7 @@ main.page{
   transform: translateY(0);
 }
 
-/* Link trong submenu (áp dụng cho cả <a> không có class) */
+/* Link trong submenu */
 .submenu a{
   display: block;
   padding: 10px 10px;
@@ -252,11 +255,6 @@ main.page{
   background: rgba(255,255,255,.08);
 }
 
-@media (max-width: 720px){
-  body{ padding-top: 76px; }
-  .nav{ gap: 10px; }
-}
-
 .site-header .nav-wrap{
   position: relative;
   display: flex;
@@ -267,10 +265,10 @@ main.page{
 
 /* ===== Burger button ===== */
 .nav-toggle{
-  display: none;        
+  display: none;
   width: 42px;
   height: 42px;
-  border-radius: 14px;       
+  border-radius: 14px;
   border: 1px solid rgba(255,255,255,.16);
   background: rgba(255,255,255,.06);
   -webkit-backdrop-filter: blur(10px);
@@ -293,9 +291,7 @@ main.page{
   transform: translateY(-1px);
 }
 
-.nav-toggle:active{
-  transform: translateY(0);
-}
+.nav-toggle:active{ transform: translateY(0); }
 
 .nav-toggle:focus-visible{
   outline: 2px solid rgba(255,255,255,.35);
@@ -313,8 +309,9 @@ main.page{
 }
 
 .nav-toggle span:nth-child(1){ transform: translateY(-6px); }
-.nav-toggle span:nth-child(2){ transform: translateY(0);   width: 14px; opacity: .85; }
-.nav-toggle span:nth-child(3){ transform: translateY(6px);  }
+.nav-toggle span:nth-child(2){ transform: translateY(0); width: 14px; opacity: .85; }
+.nav-toggle span:nth-child(3){ transform: translateY(6px); }
+
 .nav-toggle.is-open span:nth-child(1){
   transform: translateY(0) rotate(45deg);
   width: 20px;
