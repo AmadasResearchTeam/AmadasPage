@@ -1,0 +1,349 @@
+:root{
+  --bg: #0f0f10;
+  --panel: #141416;
+  --text: #f2f2f2;
+  --muted: #c9c9c9;
+  --line: rgba(255,255,255,.08);
+}
+
+*{ box-sizing: border-box; }
+html, body {
+  margin:0;
+  padding:0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+a{ color: inherit; text-decoration: none; }
+.container{ width: min(1100px, 92%); margin: 0 auto; }
+
+
+body{
+  padding-top: 64px;     /* giữ để chừa chỗ cho header fixed */
+  min-height: 100vh;     /* quan trọng */
+  display: flex;         /* quan trọng */
+  flex-direction: column;/* quan trọng */
+}
+
+main.page{
+  flex: 1;               /* quan trọng: nội dung giãn ra để footer xuống đáy */
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header{
+  position: fixed;    
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+
+  background: rgba(15,15,16,.80);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+
+  transform: translateY(-12px);
+  opacity: 0;
+  animation: navEnter .45s ease forwards;
+}
+
+@keyframes navEnter{
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.site-header{
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+/* Căn hàng trong header */
+.nav-wrap{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 12px 0;
+  gap: 16px;
+}
+
+/* Brand */
+.brand{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.brand-text{ letter-spacing:.2px; }
+
+/* Nav links */
+.nav{
+  display:flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-link{
+  font-size: 13px;
+  letter-spacing: .8px;
+  opacity: .92;
+  padding: 8px 6px;
+  border-radius: 8px;
+}
+.nav-link:hover{
+  opacity: 1;
+  background: rgba(255,255,255,.06);
+}
+
+/* =========================
+   HERO / SECTIONS
+   ========================= */
+.hero{ padding-top: 10px; }
+
+.hero-media{
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero-media img{
+  width: 100%;
+  height: auto;
+  display:block;
+}
+
+.logo-amadas {
+  width: 21vh;
+  height: 50px;
+}
+
+
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.05), rgba(0,0,0,.55));
+}
+
+.hero-title{
+  position:absolute;
+  inset: 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(0,0,0,.75);
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(255,255,255,.18);
+}
+
+.hero-content{
+  text-align:center;
+  padding: 28px 0 8px;
+}
+
+.hero-heading{
+  font-size: clamp(22px, 3vw, 40px);
+  margin: 0 0 14px;
+  font-weight: 800;
+}
+
+.hero-text{
+  margin: 0 auto 12px;
+  max-width: 900px;
+  line-height: 1.8;
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.section{
+  padding: 44px 0;
+  border-top: 1px solid var(--line);
+}
+
+.section h2{
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+.section p{
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* =========================
+   DROPDOWN SUBMENU (hover không bị ẩn liền)
+   ========================= */
+.nav-item{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+
+.has-submenu .submenu{
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 220px;
+
+  background: rgba(20,20,22,.98);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: .15s ease;
+  z-index: 99999;
+}
+
+/* “Cầu nối” để chuột đi xuống submenu không bị mất hover */
+.has-submenu .submenu::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -12px;
+  width: 100%;
+  height: 12px;
+}
+
+.has-submenu:hover .submenu,
+.has-submenu:focus-within .submenu{
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Link trong submenu (áp dụng cho cả <a> không có class) */
+.submenu a{
+  display: block;
+  padding: 10px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  letter-spacing: .2px;
+  color: var(--text);
+}
+.submenu a:hover{
+  background: rgba(255,255,255,.08);
+}
+
+/* Mobile nhỏ: nav xuống dòng dễ nhìn */
+@media (max-width: 720px){
+  body{ padding-top: 76px; }
+  .nav{ gap: 10px; }
+}
+
+/* ===== Burger button ===== */
+.nav-toggle{
+  display: none;            /* desktop: ẩn */
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(8px);
+
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+
+  /* căn giữa 3 line */
+  align-items: center;
+  justify-content: center;
+}
+
+/* vòng sáng nhẹ */
+.nav-toggle::after{
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.14), transparent 55%);
+  opacity: .6;
+  pointer-events: none;
+}
+
+/* 3 line */
+.nav-toggle span{
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  transition: transform .22s ease, opacity .18s ease, width .22s ease;
+}
+
+.nav-toggle span:nth-child(1){ transform: translateY(-7px); }
+.nav-toggle span:nth-child(2){ transform: translateY(0);   width: 16px; opacity: .85; }
+.nav-toggle span:nth-child(3){ transform: translateY(7px);  }
+
+/* hover đẹp hơn */
+.nav-toggle:hover{
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.09);
+}
+
+/* OPEN -> X (mượt, cân) */
+.nav-toggle.is-open span:nth-child(1){
+  transform: translateY(0) rotate(45deg);
+  width: 22px;
+}
+.nav-toggle.is-open span:nth-child(2){
+  opacity: 0;
+  transform: translateY(0) scaleX(.3);
+}
+.nav-toggle.is-open span:nth-child(3){
+  transform: translateY(0) rotate(-45deg);
+  width: 22px;
+}
+
+/* ===== Mobile behavior ===== */
+@media (max-width: 720px){
+  .nav-toggle{ display: inline-flex; }
+
+  .nav{
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;                 /* bám theo nav-wrap */
+    width: min(320px, 92vw);
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    background: rgba(20,20,22,.98);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: .18s ease;
+  }
+
+  .nav.is-open{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .nav-link{
+    padding: 10px 10px;
+    border-radius: 10px;
+  }
+}
