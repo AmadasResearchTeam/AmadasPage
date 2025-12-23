@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    { "source": "/contact", "destination": "/layout/partials/contact.html" },
+    { "source": "/contact-us", "destination": "/layout/partials/contactus.html" },
+    { "source": "/publications", "destination": "/layout/publications/publication.html" }
+  ],
+  "redirects": [
+    {
+      "source": "/layout/partials/contact.html",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/layout/partials/contactus.html",
+      "destination": "/contact-us",
+      "permanent": true
+    },
+    {
+      "source": "/layout/publications/publication.html",
+      "destination": "/publications",
+      "permanent": true
+    }
+  ]
+}
