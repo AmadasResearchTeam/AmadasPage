@@ -13,11 +13,10 @@ function getRootPrefix() {
   let path = window.location.pathname.split("?")[0].split("#")[0];
   const parts = path.split("/").filter(Boolean);
 
-  // Nếu segment cuối có dấu "." thì mới coi là file (vd index.html)
   const last = parts[parts.length - 1] || "";
   const isFile = last.includes(".");
 
-  if (isFile) parts.pop(); // chỉ pop khi đúng là file
+  if (isFile) parts.pop();
   if (parts.length === 0) return "";
   return Array(parts.length).fill("..").join("/");
 }
@@ -58,15 +57,48 @@ function rewriteHeaderLinks(root) {
   });
 }
 
-function normalizePathname(pathname) {
-  let p = (pathname || "").split("?")[0].split("#")[0];
+/* ====================== ACTIVE NAV ====================== */
 
-  if (p === "/" || p.endsWith("/")) return `${p}index.html`;
+const ROUTE_RULES = [
+  { friendly: "/team", file: "/layout/partials/contact.html" },
+  { friendly: "/contact", file: "/layout/partials/contactus.html" },
+  { friendly: "/publications", file: "/layout/publications/publication.html" },
+];
 
-  const last = p.split("/").pop() || "";
-  if (!last.includes(".")) return `${p}/index.html`;
-
+function norm(p) {
+  p = (p || "").split("?")[0].split("#")[0];
+  if (!p.startsWith("/")) p = "/" + p;
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+  if (p === "/index.html" || p === "/index") return "/";
+  if (p.endsWith("/index.html")) p = p.slice(0, -11);
+  if (p.endsWith("/index")) p = p.slice(0, -6);
+  if (p === "") p = "/";
   return p;
+}
+
+const CANON_MAP = (() => {
+  const m = new Map();
+  m.set("/index.html", "/");
+  m.set("/index", "/");
+  m.set("/", "/");
+
+  for (const r of ROUTE_RULES) {
+    const friendly = norm(r.friendly);
+    const file = norm(r.file);
+
+    m.set(friendly, friendly);
+
+    m.set(file, friendly);
+    if (file.endsWith(".html")) m.set(file.slice(0, -5), friendly); // bỏ .html
+    m.set(file + "/", friendly);
+    if (file.endsWith(".html")) m.set(file.slice(0, -5) + "/", friendly);
+  }
+  return m;
+})();
+
+function toCanonicalPath(pathname) {
+  const p = norm(pathname);
+  return CANON_MAP.get(p) || p;
 }
 
 function setActiveNavLink() {
@@ -78,7 +110,7 @@ function setActiveNavLink() {
 
   links.forEach((a) => a.classList.remove("active"));
 
-  const currentPath = normalizePathname(window.location.pathname);
+  const currentCanon = toCanonicalPath(window.location.pathname);
 
   for (const a of links) {
     const href = a.getAttribute("href");
@@ -86,24 +118,25 @@ function setActiveNavLink() {
     if (href.startsWith("#")) continue;
 
     const targetUrl = new URL(href, window.location.href);
-    const targetPath = normalizePathname(targetUrl.pathname);
+    const targetCanon = toCanonicalPath(targetUrl.pathname);
 
-    if (targetPath === currentPath) {
+    if (targetCanon === currentCanon) {
       a.classList.add("active");
-      break;
+      return;
     }
   }
 
-  if (!header.querySelector("a.nav-link.active")) {
-    if (currentPath.endsWith("/index.html")) {
-      const home = links.find((a) => {
-        const href = a.getAttribute("href") || "";
-        return href.endsWith("index.html");
-      });
-      if (home) home.classList.add("active");
-    }
+  // fallback home
+  if (currentCanon === "/") {
+    const home = links.find((a) => {
+      const href = a.getAttribute("href") || "";
+      return href.includes("index");
+    });
+    if (home) home.classList.add("active");
   }
 }
+
+/* ====================== LOAD PARTIALS ====================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const root = getRootPrefix();
@@ -114,6 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     rewriteHeaderLinks(root);
 
+    // quan trọng: header load xong + rewrite xong rồi mới set active
     setActiveNavLink();
 
     if (document.querySelector("#hero-container"))
@@ -148,7 +182,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (document.querySelector("#conference-container"))
       await loadPartial("#conference-container", p("layout/publications/conference.html"));
-
   } catch (err) {
     console.error(err);
   }
