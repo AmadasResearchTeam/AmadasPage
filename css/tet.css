@@ -1,0 +1,66 @@
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+.tet-fixed {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,.35));
+}
+.tet-inner { will-change: transform; }
+.tet-fixed img { display:block; width:100%; height:auto; }
+/* 
+.tet-lion {
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: clamp(180px, 18vw, 320px);
+} */
+
+.tet-lantern-left,
+.tet-lantern-right {
+  top: 90px;          
+  transform: none;   
+  width: clamp(120px, 14vw, 230px);
+}
+
+
+
+.tet-lantern-left { left: 16px; }
+.tet-lantern-right { right: 16px; }
+
+/* wobble */
+.tet-wobble {
+  transform-origin: 50% 15%;
+  animation: tetWobble 1.8s ease-in-out infinite;
+}
+@keyframes tetWobble {
+  0%   { transform: rotate(-4deg) translateY(0px); }
+  50%  { transform: rotate(4deg)  translateY(-4px); }
+  100% { transform: rotate(-4deg) translateY(0px); }
+}
+
+@media (max-width: 768px) {
+  #tet-lantern-left,
+  #tet-lantern-right {
+    display: none !important;
+  }
+
+  .tet-lion {
+    width: 180px;
+    bottom: 10px;
+  }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tet-wobble { animation: none !important; }
+}
