@@ -58,15 +58,11 @@ function rewriteHeaderLinks(root) {
   });
 }
 
-/** ---- ACTIVE NAV (phần mới) ---- **/
 function normalizePathname(pathname) {
-  // bỏ query/hash nếu có (pathname thường không có nhưng để chắc)
   let p = (pathname || "").split("?")[0].split("#")[0];
 
-  // nếu là "/" hoặc kết thúc bằng "/" thì coi là "/index.html"
   if (p === "/" || p.endsWith("/")) return `${p}index.html`;
 
-  // nếu không có đuôi file (hiếm) thì cũng coi như index.html trong folder đó
   const last = p.split("/").pop() || "";
   if (!last.includes(".")) return `${p}/index.html`;
 
@@ -80,18 +76,15 @@ function setActiveNavLink() {
   const links = Array.from(header.querySelectorAll("a.nav-link"));
   if (links.length === 0) return;
 
-  // reset
   links.forEach((a) => a.classList.remove("active"));
 
   const currentPath = normalizePathname(window.location.pathname);
 
-  // set active theo pathname thực
   for (const a of links) {
     const href = a.getAttribute("href");
     if (!href) continue;
-    if (href.startsWith("#")) continue; // nếu dùng hash thì xử lý riêng (không cần ở đây)
+    if (href.startsWith("#")) continue;
 
-    // so theo pathname tuyệt đối
     const targetUrl = new URL(href, window.location.href);
     const targetPath = normalizePathname(targetUrl.pathname);
 
@@ -101,7 +94,6 @@ function setActiveNavLink() {
     }
   }
 
-  // fallback: nếu đang ở trang root mà không match gì thì set tab "index.html"
   if (!header.querySelector("a.nav-link.active")) {
     if (currentPath.endsWith("/index.html")) {
       const home = links.find((a) => {
@@ -122,7 +114,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     rewriteHeaderLinks(root);
 
-    // IMPORTANT: sau khi header được load + rewrite link xong thì set active
     setActiveNavLink();
 
     if (document.querySelector("#hero-container"))
