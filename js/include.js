@@ -208,10 +208,8 @@
   }
 
   function applyCssFromDoc(doc, baseUrl) {
-    // gỡ css động của trang trước
     clearDynamicAssets();
 
-    // nạp css của trang mới (trong head của trang đó)
     const links = Array.from(doc.querySelectorAll('link[rel="stylesheet"][href]'));
     for (const l of links) {
       const href = l.getAttribute("href");
@@ -241,7 +239,7 @@
       v.startsWith("data:") ||
       v.startsWith("http://") ||
       v.startsWith("https://") ||
-      v.startsWith("/"); // chú ý: nếu bạn dùng "/css/..." thì GH Pages sẽ dễ hỏng
+      v.startsWith("/");
 
     container.querySelectorAll("[src]").forEach((el) => {
       const v = el.getAttribute("src") || "";
@@ -269,7 +267,6 @@
     try {
       const targetUrl = new URL(targetHref, window.location.href);
 
-      // external => để browser xử lý
       if (targetUrl.origin !== window.location.origin) {
         window.location.href = targetUrl.href;
         return;
@@ -281,7 +278,6 @@
 
       const res = await fetch(fetchUrl.href, { cache: "no-store" });
       if (!res.ok) {
-        // fallback: nếu fetch fail thì đi bình thường (có reload)
         window.location.href = targetUrl.href;
         return;
       }
@@ -289,37 +285,29 @@
       const htmlText = await res.text();
       const doc = new DOMParser().parseFromString(htmlText, "text/html");
 
-      // title
       if (doc.title) document.title = doc.title;
 
-      // css riêng trang
       applyCssFromDoc(doc, fetchUrl.href);
 
-      // swap main
       const incomingMain = extractMain(doc);
       const currentMain = document.querySelector("main.page") || document.querySelector("main");
 
       if (currentMain && incomingMain) {
         currentMain.innerHTML = incomingMain.innerHTML;
-        // giữ class page để css bạn không hỏng
         if (!currentMain.classList.contains("page")) currentMain.classList.add("page");
         rewriteRelativeUrls(currentMain, fetchUrl.href);
       }
 
-      // update URL (không reload)
       if (!fromPop) {
         history.pushState({ spa: 1 }, "", targetUrl.pathname + targetUrl.search + (hash || ""));
       }
 
-      // sau khi URL đã đổi => rootPrefix đổi theo => rewrite header + load partial đúng
       const newRoot = getRootPrefixFromPath(targetUrl.pathname);
       rewriteHeaderLinks(newRoot);
       setActiveNavLink();
 
-      // load các container con nếu trang mới có
       await loadAllContainers(newRoot);
 
-      // scroll hash
       if (hash && hash.length > 1) {
         const id = hash.slice(1);
         const el = document.getElementById(id);
@@ -330,7 +318,6 @@
       }
     } catch (e) {
       console.error(e);
-      // fallback
       try { window.location.href = targetHref; } catch {}
     } finally {
       navigating = false;
@@ -338,24 +325,20 @@
   }
 
   function installSpaHeaderClick() {
-    // event delegation: header load async vẫn bắt được
     document.addEventListener(
       "click",
       (e) => {
         const a = e.target.closest("a");
         if (!a) return;
 
-        // CHỈ intercept click trong header
         if (!a.closest(".site-header")) return;
 
-        // cho phép mở tab mới
         if (a.target === "_blank") return;
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
         const href = a.getAttribute("href") || "";
         if (!href) return;
 
-        // mail/tel/external => bỏ qua
         if (
           href.startsWith("mailto:") ||
           href.startsWith("tel:") ||
@@ -363,10 +346,8 @@
           /^https?:\/\//i.test(href)
         ) return;
 
-        // hash-only (#home): nếu đang cùng trang, để default scroll (không reload)
         if (href.startsWith("#")) return;
 
-        // còn lại: chặn để SPA
         e.preventDefault();
         spaNavigateTo(href).catch(console.error);
       },

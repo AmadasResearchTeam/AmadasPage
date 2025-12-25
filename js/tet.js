@@ -1,4 +1,10 @@
+// js/tet.js
 (() => {
+  "use strict";
+
+  if (window.__AMADAS_TET__) return;
+  window.__AMADAS_TET__ = true;
+
   const prefersReducedMotion =
     window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 
@@ -8,6 +14,14 @@
     lanternLeft: "img/holiday/Latern_left.png",
     lanternRight: "img/holiday/Latern_right.png",
   };
+
+  const IDS = {
+    left: "tet-lantern-left",
+    right: "tet-lantern-right",
+    confetti: "confetti-canvas",
+  };
+
+  let mounted = false;
 
   function removeIfExists(id) {
     const el = document.getElementById(id);
@@ -38,35 +52,30 @@
 
   // ---------- Decor ----------
   function initDecor() {
-    // createFixedImage({
-    //   id: "tet-lion",
-    //   src: ASSETS.lion,
-    //   className: "tet-lion",
-    //   wobble: false,
-    // });
+    if (!mounted) return;
 
     if (isPhone()) {
-      removeIfExists("tet-lantern-left");
-      removeIfExists("tet-lantern-right");
+      removeIfExists(IDS.left);
+      removeIfExists(IDS.right);
       return;
     }
 
     createFixedImage({
-      id: "tet-lantern-left",
+      id: IDS.left,
       src: ASSETS.lanternLeft,
       className: "tet-lantern-left",
       wobble: !prefersReducedMotion,
     });
 
     createFixedImage({
-      id: "tet-lantern-right",
+      id: IDS.right,
       src: ASSETS.lanternRight,
       className: "tet-lantern-right",
       wobble: !prefersReducedMotion,
     });
   }
 
-  // ---------- Confetti (all screens) ----------
+  // ---------- Confetti (optional) ----------
   const confetti = {
     canvas: null,
     ctx: null,
@@ -77,121 +86,79 @@
     dpr: 1,
   };
 
-  function calcParticleCount() {
-    const base = Math.floor(confetti.w / 20);
-    return Math.min(220, Math.max(90, base));
-  }
-
-  function makeParticle() {
-    const colors = ["#ff3b30", "#ffcc00", "#34c759", "#0a84ff", "#ff2d55", "#bf5af2"];
-    return {
-      x: Math.random() * confetti.w,
-      y: -30 - Math.random() * confetti.h * 0.35,
-      w: 6 + Math.random() * 6,
-      h: 8 + Math.random() * 10,
-      vx: (-0.5 + Math.random()) * 0.9,
-      vy: 1.7 + Math.random() * 2.7,
-      rot: Math.random() * Math.PI,
-      vr: (-0.5 + Math.random()) * 0.14,
-      color: colors[(Math.random() * colors.length) | 0],
-      alpha: 0.85 + Math.random() * 0.15,
-    };
-  }
-
-  function setParticleCount(target) {
-    const cur = confetti.particles.length;
-    if (cur === target) return;
-    if (cur < target) {
-      for (let i = 0; i < target - cur; i++) confetti.particles.push(makeParticle());
-    } else {
-      confetti.particles.length = target;
-    }
-  }
-
-  function resizeConfetti(forceReset = false) {
-    if (!confetti.canvas || !confetti.ctx) return;
-
-    confetti.dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-    confetti.w = window.innerWidth;
-    confetti.h = window.innerHeight;
-
-    confetti.canvas.width = confetti.w * confetti.dpr;
-    confetti.canvas.height = confetti.h * confetti.dpr;
-    confetti.canvas.style.width = confetti.w + "px";
-    confetti.canvas.style.height = confetti.h + "px";
-    confetti.ctx.setTransform(confetti.dpr, 0, 0, confetti.dpr, 0, 0);
-
-    if (!forceReset) setParticleCount(calcParticleCount());
-  }
-
-  function startConfettiLoop() {
-    const tick = () => {
-      const ctx = confetti.ctx;
-      if (!ctx) return;
-
-      ctx.clearRect(0, 0, confetti.w, confetti.h);
-
-      for (const p of confetti.particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.vr;
-
-        if (p.x < -30) p.x = confetti.w + 30;
-        if (p.x > confetti.w + 30) p.x = -30;
-
-        if (p.y > confetti.h + 30) {
-          p.x = Math.random() * confetti.w;
-          p.y = -30;
-          p.vy = 1.7 + Math.random() * 2.7;
-        }
-
-        ctx.save();
-        ctx.globalAlpha = p.alpha;
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        ctx.restore();
-      }
-
-      confetti.rafId = requestAnimationFrame(tick);
-    };
-
-    confetti.rafId = requestAnimationFrame(tick);
-  }
-
-  function ensureConfettiCanvas() {
-    if (prefersReducedMotion) return;
-    if (confetti.canvas) return;
-
-    removeIfExists("confetti-canvas");
-    const canvas = document.createElement("canvas");
-    canvas.id = "confetti-canvas";
-    document.body.appendChild(canvas);
-
-    confetti.canvas = canvas;
-    confetti.ctx = canvas.getContext("2d");
-
-    resizeConfetti(true);
-    setParticleCount(calcParticleCount());
-    startConfettiLoop();
+  function stopConfetti() {
+    if (confetti.rafId) cancelAnimationFrame(confetti.rafId);
+    confetti.rafId = null;
+    confetti.particles = [];
+    confetti.ctx = null;
+    confetti.canvas = null;
+    removeIfExists(IDS.confetti);
   }
 
   function mount() {
-    initDecor();     
-    // ensureConfettiCanvas(); hoa giấy
+    if (mounted) return;
+    mounted = true;
+
+    document.body.classList.add("page-home");
+
+    initDecor();
+    // bật hoa giấy
+    // ensureConfettiCanvas();
   }
 
-  const run = () => mount();
+  function unmount() {
+    if (!mounted) return;
+    mounted = false;
 
-  if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", run);
-  else run();
+    document.body.classList.remove("page-home");
 
+    removeIfExists(IDS.left);
+    removeIfExists(IDS.right);
+    stopConfetti();
+  }
+
+  function isHomeRoute() {
+    const p = (window.location.pathname || "/").replace(/\/+$/, "");
+    return p === "" || p === "/" || p.endsWith("/index.html") || p.endsWith("/index");
+  }
+
+  function syncToRoute() {
+    if (isHomeRoute()) mount();
+    else unmount();
+  }
+
+  // --- Bắt route change trong SPA: patch pushState/replaceState + popstate ---
+  function installLocationChangeHook() {
+    const fire = () => window.dispatchEvent(new Event("amadas:routechange"));
+
+    const _push = history.pushState;
+    history.pushState = function (...args) {
+      const ret = _push.apply(this, args);
+      fire();
+      return ret;
+    };
+
+    const _replace = history.replaceState;
+    history.replaceState = function (...args) {
+      const ret = _replace.apply(this, args);
+      fire();
+      return ret;
+    };
+
+    window.addEventListener("popstate", fire);
+  }
+
+  installLocationChangeHook();
+
+  window.addEventListener("amadas:routechange", syncToRoute);
   window.addEventListener("resize", () => {
-    initDecor(); 
-    if (!prefersReducedMotion) {
-    //   ensureConfettiCanvas(); hoa giấy
-      resizeConfetti(false);
-    }
+    if (!mounted) return;
+    initDecor();
   });
+
+  if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", syncToRoute);
+  } else {
+    syncToRoute();
+  }
 })();
