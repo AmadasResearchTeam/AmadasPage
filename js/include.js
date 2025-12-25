@@ -77,9 +77,10 @@
 
   /* ====================== ACTIVE NAV ====================== */
   const ROUTE_RULES = [
-    { friendly: "/team", file: "/layout/partials/contact.html" },
-    { friendly: "/contact", file: "/layout/partials/contactus.html" },
-    { friendly: "/publications", file: "/layout/publications/publication.html" },
+    // friendly -> file thật để fetch
+    { friendly: "/team", file: "layout/partials/contact.html" },
+    { friendly: "/contact", file: "layout/partials/contactus.html" },
+    { friendly: "/publications", file: "layout/publications/publication.html" },
   ];
 
   function norm(p) {
@@ -101,7 +102,7 @@
 
     for (const r of ROUTE_RULES) {
       const friendly = norm(r.friendly);
-      const file = norm(r.file);
+      const file = norm("/" + String(r.file || "").replace(/^\//, ""));
 
       m.set(friendly, friendly);
       m.set(file, friendly);
@@ -167,30 +168,42 @@
 
     // home sections
     const hero = document.querySelector("#hero-container");
-    if (hero && !hero.innerHTML.trim()) await loadPartial("#hero-container", p("layout/partials/hero.html"));
+    if (hero && !hero.innerHTML.trim())
+      await loadPartial("#hero-container", p("layout/partials/hero.html"));
 
     const project = document.querySelector("#project-container");
-    if (project && !project.innerHTML.trim()) await loadPartial("#project-container", p("layout/partials/project.html"));
+    if (project && !project.innerHTML.trim())
+      await loadPartial("#project-container", p("layout/partials/project.html"));
 
     const blog = document.querySelector("#blog-container");
-    if (blog && !blog.innerHTML.trim()) await loadPartial("#blog-container", p("layout/partials/blog.html"));
+    if (blog && !blog.innerHTML.trim())
+      await loadPartial("#blog-container", p("layout/partials/blog.html"));
 
     const people = document.querySelector("#people-container");
-    if (people && !people.innerHTML.trim()) await loadPartial("#people-container", p("layout/partials/people.html"));
+    if (people && !people.innerHTML.trim())
+      await loadPartial("#people-container", p("layout/partials/people.html"));
 
     // team/contact
     const advisor = document.querySelector("#advisor-container");
-    if (advisor && !advisor.innerHTML.trim()) await loadPartial("#advisor-container", p("layout/contact/advisor.html"));
+    if (advisor && !advisor.innerHTML.trim())
+      await loadPartial("#advisor-container", p("layout/contact/advisor.html"));
 
     const core = document.querySelector("#core-container");
-    if (core && !core.innerHTML.trim()) await loadPartial("#core-container", p("layout/contact/coremember.html"));
+    if (core && !core.innerHTML.trim())
+      await loadPartial("#core-container", p("layout/contact/coremember.html"));
 
     const member = document.querySelector("#member-container");
-    if (member && !member.innerHTML.trim()) await loadPartial("#member-container", p("layout/contact/member.html"));
+    if (member && !member.innerHTML.trim())
+      await loadPartial("#member-container", p("layout/contact/member.html"));
+
+    const colabf = document.querySelector("#colab-container");
+    if (colabf && !colabf.innerHTML.trim())
+      await loadPartial("#colab-container", p("layout/contact/Collaborators.html"));
 
     // publications
     const jounal = document.querySelector("#jounal-container");
-    if (jounal && !jounal.innerHTML.trim()) await loadPartial("#jounal-container", p("layout/publications/jounal.html"));
+    if (jounal && !jounal.innerHTML.trim())
+      await loadPartial("#jounal-container", p("layout/publications/jounal.html"));
 
     const introJ = document.querySelector("#Introjounal-container");
     if (introJ && !introJ.innerHTML.trim())
@@ -205,8 +218,11 @@
   const STATIC_CSS = new Set(
     Array.from(document.querySelectorAll('link[rel="stylesheet"][href]'))
       .map((l) => {
-        try { return new URL(l.getAttribute("href"), window.location.href).toString(); }
-        catch { return null; }
+        try {
+          return new URL(l.getAttribute("href"), window.location.href).toString();
+        } catch {
+          return null;
+        }
       })
       .filter(Boolean)
   );
@@ -224,7 +240,11 @@
       if (!href) continue;
 
       let abs;
-      try { abs = new URL(href, baseUrl).toString(); } catch { continue; }
+      try {
+        abs = new URL(href, baseUrl).toString();
+      } catch {
+        continue;
+      }
 
       if (STATIC_CSS.has(abs)) continue;
       if (document.querySelector(`link[rel="stylesheet"][href="${abs}"]`)) continue;
@@ -252,51 +272,116 @@
     container.querySelectorAll("[src]").forEach((el) => {
       const v = el.getAttribute("src") || "";
       if (isSpecial(v)) return;
-      try { el.setAttribute("src", new URL(v, baseUrl).toString()); } catch {}
+      try {
+        el.setAttribute("src", new URL(v, baseUrl).toString());
+      } catch {}
     });
 
     container.querySelectorAll("[href]").forEach((el) => {
       const v = el.getAttribute("href") || "";
       if (isSpecial(v)) return;
-      try { el.setAttribute("href", new URL(v, baseUrl).toString()); } catch {}
+      try {
+        el.setAttribute("href", new URL(v, baseUrl).toString());
+      } catch {}
     });
   }
 
-  // QUAN TRỌNG: không fallback về doc.body nữa -> tránh nhét footer/header vào main
   function extractMain(doc) {
     return doc.querySelector("main.page") || doc.querySelector("main");
   }
 
   function removeNestedShellContainers(mainEl) {
     if (!mainEl) return;
-    // nếu vì lý do nào đó main bị nhét cả shell vào, ta gỡ bỏ phần đó để tránh double header/footer
-    mainEl.querySelectorAll("#header-container, #footer-container").forEach((n) => n.remove());
+    mainEl
+      .querySelectorAll("#header-container, #footer-container")
+      .forEach((n) => n.remove());
   }
 
-  /* ====================== TET.JS LOADER (FIX mất tet khi start ở trang khác) ====================== */
-  function ensureScriptOnce(id, srcAbs) {
-    if (document.getElementById(id)) return;
+  /* ====================== ROUTE RESOLVE (friendly -> file thật để fetch) ====================== */
+  function resolveFetchUrl(targetUrl) {
+    const targetPath = norm(targetUrl.pathname);
+
+    const rule = ROUTE_RULES.find((r) => norm(r.friendly) === targetPath);
+    if (!rule) return new URL(targetUrl.href);
+
+    const fileRel = String(rule.file || "").replace(/^\//, "");
+    const rootNow = getRootPrefixFromPath(window.location.pathname);
+
+    const abs = new URL(withRoot(rootNow, fileRel), window.location.href);
+    abs.search = targetUrl.search;
+    abs.hash = ""; // fetch không cần hash
+    return abs;
+  }
+
+  /* ====================== SPA RENDER EVENT ====================== */
+  function emitSpaRendered(detail) {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("amadas:spa:rendered", { detail: detail || {} })
+      );
+    } catch {}
+  }
+
+  /* ====================== SCRIPT LOADER (ONCE) ====================== */
+  function ensureScriptOnce(id, srcAbs, onload) {
+    const existing = document.getElementById(id);
+    if (existing) {
+      if (typeof onload === "function") {
+        if (existing.dataset.loaded === "1") onload();
+        else existing.addEventListener("load", onload, { once: true });
+      }
+      return;
+    }
 
     const s = document.createElement("script");
     s.id = id;
     s.src = srcAbs;
     s.defer = true;
+
+    s.addEventListener(
+      "load",
+      () => {
+        s.dataset.loaded = "1";
+        if (typeof onload === "function") {
+          try {
+            onload();
+          } catch {}
+        }
+      },
+      { once: true }
+    );
+
     document.head.appendChild(s);
   }
 
+  /* ====================== FILTERPAPER.JS LOADER ====================== */
+  function ensureFilterPaperJs() {
+    const root = getRootPrefixFromPath(window.location.pathname);
+    const srcAbs = new URL(withRoot(root, "js/filterpaper.js"), window.location.href).toString();
+    ensureScriptOnce("amadas-filterpaper-js", srcAbs);
+  }
+
+  /* ====================== TET.JS LOADER ====================== */
   function ensureTetIfHome() {
     const canon = toCanonicalPath(window.location.pathname);
     if (canon !== "/") return;
 
-    // nếu tet.js nằm ở root: js/tet.js
     const root = getRootPrefixFromPath(window.location.pathname);
     const tetSrc = new URL(withRoot(root, "js/tet.js"), window.location.href).toString();
 
-    ensureScriptOnce("spa-tet-js", tetSrc);
+    ensureScriptOnce("spa-tet-js", tetSrc, () => {
+      if (typeof window.tetInit === "function") {
+        try {
+          window.tetInit();
+        } catch {}
+      }
+    });
 
-    // nếu tet.js có hàm init thì gọi lại cho chắc
+    // nếu đã có sẵn tetInit (script cache nhanh) thì init luôn
     if (typeof window.tetInit === "function") {
-      try { window.tetInit(); } catch {}
+      try {
+        window.tetInit();
+      } catch {}
     }
   }
 
@@ -310,7 +395,6 @@
     try {
       const targetUrl = new URL(targetHref, window.location.href);
 
-      // nếu trang hiện tại không có main -> fallback điều hướng thường
       const currentMain = getCurrentMain();
       if (!currentMain) {
         window.location.href = targetUrl.href;
@@ -322,12 +406,12 @@
         return;
       }
 
-      const fetchUrl = new URL(targetUrl.href);
-      const hash = fetchUrl.hash;
-      fetchUrl.hash = "";
+      const hash = targetUrl.hash || "";
+      const fetchUrl = resolveFetchUrl(targetUrl);
 
       const res = await fetch(fetchUrl.href, { cache: "no-store" });
       if (!res.ok) {
+        console.warn("[AMADAS SPA] fetch failed -> full reload", fetchUrl.href, res.status);
         window.location.href = targetUrl.href;
         return;
       }
@@ -341,7 +425,7 @@
 
       const incomingMain = extractMain(doc);
       if (!incomingMain) {
-        // trang target không có main -> không chơi SPA, load thẳng để khỏi lỗi/double footer
+        console.warn("[AMADAS SPA] missing <main> in fetched doc -> full reload", fetchUrl.href);
         window.location.href = targetUrl.href;
         return;
       }
@@ -352,17 +436,24 @@
       removeNestedShellContainers(currentMain);
 
       if (!fromPop) {
-        history.pushState({ spa: 1 }, "", targetUrl.pathname + targetUrl.search + (hash || ""));
+        history.pushState(
+          { spa: 1 },
+          "",
+          targetUrl.pathname + targetUrl.search + (hash || "")
+        );
       }
 
-      const newRoot = getRootPrefixFromPath(targetUrl.pathname);
+      // IMPORTANT: dùng root theo file thật (fetchUrl) để load partials ổn định
+      const newRoot = getRootPrefixFromPath(fetchUrl.pathname);
       rewriteHeaderLinks(newRoot);
       setActiveNavLink();
 
       await loadAllContainers(newRoot);
 
-      // FIX: quay về home thì đảm bảo tet.js có mặt
+      // load filter + tet + notify render
+      ensureFilterPaperJs();
       ensureTetIfHome();
+      emitSpaRendered({ type: "navigate", path: targetUrl.pathname });
 
       if (hash && hash.length > 1) {
         const id = hash.slice(1);
@@ -374,41 +465,79 @@
       }
     } catch (e) {
       console.error(e);
-      try { window.location.href = targetHref; } catch {}
+      try {
+        window.location.href = targetHref;
+      } catch {}
     } finally {
       navigating = false;
     }
   }
 
-  function installSpaHeaderClick() {
+  /* ====================== CLICK INTERCEPT (GLOBAL) ====================== */
+  function isProbablyAssetPath(pathname) {
+    return /\.(pdf|zip|rar|7z|png|jpe?g|gif|webp|svg|mp4|mp3|wav|woff2?|ttf|otf)$/i.test(
+      pathname || ""
+    );
+  }
+
+  function shouldInterceptLink(a, e) {
+    if (!a) return false;
+
+    // opt-out
+    if (a.hasAttribute("data-no-spa") || a.closest("[data-no-spa]")) return false;
+    if (a.classList.contains("no-spa")) return false;
+
+    // download / new tab
+    if (a.hasAttribute("download")) return false;
+    if (a.target && a.target !== "_self") return false;
+
+    // modifiers
+    if (
+      e.defaultPrevented ||
+      e.button !== 0 ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey
+    )
+      return false;
+
+    const href = a.getAttribute("href") || "";
+    if (!href) return false;
+
+    // ignore anchors & special schemes
+    if (href.startsWith("#")) return false;
+    if (/^(mailto:|tel:|javascript:|data:)/i.test(href)) return false;
+
+    // same-origin only
+    let url;
+    try {
+      url = new URL(href, window.location.href);
+    } catch {
+      return false;
+    }
+    if (url.origin !== window.location.origin) return false;
+
+    // avoid hijacking file assets
+    if (isProbablyAssetPath(url.pathname)) return false;
+
+    // cần có main để SPA thay nội dung
+    if (!getCurrentMain()) return false;
+
+    return true;
+  }
+
+  function installSpaClick() {
     document.addEventListener(
       "click",
       (e) => {
         const a = e.target.closest("a");
         if (!a) return;
 
-        if (!a.closest(".site-header")) return;
-
-        if (a.target === "_blank") return;
-        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-
-        const href = a.getAttribute("href") || "";
-        if (!href) return;
-
-        if (
-          href.startsWith("mailto:") ||
-          href.startsWith("tel:") ||
-          href.startsWith("javascript:") ||
-          /^https?:\/\//i.test(href)
-        ) return;
-
-        if (href.startsWith("#")) return;
-
-        // nếu trang hiện tại không có main -> không chặn click
-        if (!getCurrentMain()) return;
+        if (!shouldInterceptLink(a, e)) return;
 
         e.preventDefault();
-        spaNavigateTo(href).catch(console.error);
+        spaNavigateTo(a.getAttribute("href") || a.href).catch(console.error);
       },
       true
     );
@@ -425,10 +554,12 @@
       const root = getRootPrefix();
       await loadAllContainers(root);
 
-      if (getCurrentMain()) installSpaHeaderClick();
+      if (getCurrentMain()) installSpaClick();
 
-      // FIX: nếu đang ở home ngay từ đầu -> đảm bảo tet.js
+      // load filter + tet + notify initial render
+      ensureFilterPaperJs();
       ensureTetIfHome();
+      emitSpaRendered({ type: "initial", path: window.location.pathname });
 
       console.log("[AMADAS SPA] ready:", window.location.pathname);
     } catch (err) {

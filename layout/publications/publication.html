@@ -4,41 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AMaDas Research Group</title>
-  <link rel="stylesheet" href="/css/footer.css">
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="stylesheet" href="/css/publication.css" />
 
+  <link rel="stylesheet" href="../../css/footer.css">
+  <link rel="stylesheet" href="../../css/style.css" />
+  <link rel="stylesheet" href="../../css/publication.css" />
   <link rel="stylesheet" href="https://unpkg.com/kursor/dist/kursor.css">
-
 </head>
-<body>
-    <div id="header-container"></div>
-   <section id="people" class="section container">
-      <div id="Introjounal-container"></div>
-        <div class="pub-filter-bar">
-          <button class="pub-filter-btn" id="yearFilterBtn" type="button"
-                  aria-haspopup="listbox" aria-expanded="false">
-            Year: <span id="yearFilterLabel">All</span>
-            <span class="pub-filter-chev" aria-hidden="true">▾</span>
-          </button>
 
-          <div class="pub-filter-menu" id="yearFilterMenu" role="listbox" aria-label="Filter publications by year">
-          </div>
-        </div>
+<body>
+  <div id="header-container"></div>
+
+  <main class="page">
+    <section id="people" class="section container">
+      <div id="Introjounal-container"></div>
 
       <section class="pub-block" id="publications">
 
-       <ol class="pub-list" id="pubAllList">
+        <!-- LIST GỐC: JS sẽ đọc data-year ở đây -->
+        <ol class="pub-list" id="pubAllList">
 
           <li class="pub-item" data-year="2025" data-type="journal">
             <span class="pub-index"></span>
             <div class="pub-body">
               <a class="pub-link"
-                href="https://doi.org/10.1016/j.image.2025.117461"
-                target="_blank" rel="noopener">
+                 href="https://doi.org/10.1016/j.image.2025.117461"
+                 target="_blank" rel="noopener">
                 U-MobileViT: A Lightweight Vision Transformer-based Backbone for Panoptic Driving Segmentation
               </a>
-
               <div class="pub-meta">
                 <span class="pub-venue">Signal Processing: Image Communication</span>
                 <div class="wraper-button" style="margin-left: 10px;">
@@ -52,11 +44,10 @@
             <span class="pub-index"></span>
             <div class="pub-body">
               <a class="pub-link"
-                href="https://doi.org/10.1142/S3060932125500207"
-                target="_blank" rel="noopener">
+                 href="https://doi.org/10.1142/S3060932125500207"
+                 target="_blank" rel="noopener">
                 A Novel Approach to Metaheuristic-Driven Threshold Optimization in Frequent High-Order Pattern Mining
               </a>
-
               <div class="pub-meta">
                 <span class="pub-venue">Materials and Emerging Technologies for Sustainability</span>
               </div>
@@ -66,12 +57,9 @@
           <li class="pub-item" data-year="2025" data-type="conference">
             <span class="pub-index"></span>
             <div class="pub-body">
-              <a class="pub-link"
-                href="#"
-                target="_blank" rel="noopener">
+              <a class="pub-link" href="#" target="_blank" rel="noopener">
                 Enhanced Traffic Sign Recognition on Multi-Speed Expressways in Vietnam Using YOLO and Lightweight Polygon-Based Lane Detection
               </a>
-
               <div class="pub-meta">
                 <span class="pub-venue">The 11th EAI International Conference on Smart Objects and Technologies for Social Good, 18-20 December, Vietnam</span>
                 <span class="pub-type">Scopus</span>
@@ -83,12 +71,9 @@
           <li class="pub-item" data-year="2025" data-type="conference">
             <span class="pub-index"></span>
             <div class="pub-body">
-              <a class="pub-link"
-                href="#"
-                target="_blank" rel="noopener">
+              <a class="pub-link" href="#" target="_blank" rel="noopener">
                 Cross-Country Analysis of Discourse on Misinformation in the Digital Platform Using Topic Modeling
               </a>
-
               <div class="pub-meta">
                 <span class="pub-venue">The 7th IEEE International Conference on Cognitive Machine Intelligence, 11-14 November, USA</span>
                 <span class="pub-type">Scopus</span>
@@ -101,11 +86,10 @@
             <span class="pub-index"></span>
             <div class="pub-body">
               <a class="pub-link"
-                href="https://doi.org/10.48550/arXiv.2509.12251"
-                target="_blank" rel="noopener">
+                 href="https://doi.org/10.48550/arXiv.2509.12251"
+                 target="_blank" rel="noopener">
                 V-Math: An Agentic Approach to the Vietnamese National High School Graduation Mathematics Exams
               </a>
-
               <div class="pub-meta">
                 <span class="pub-venue">arXiv:2509.12251</span>
                 <span class="conf-accept">Preprint</span>
@@ -118,83 +102,15 @@
         <div id="pubYearGroups"></div>
 
       </section>
-
-
     </section>
+  </main>
 
-  <!-- <footer style="border-top:1px solid rgba(255,255,255,.10); padding:34px 0 18px; background:rgba(20,20,22,.35);">
-  <div style="width:min(1200px, calc(100% - 48px)); margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;">
-
-    <div>
-      <h4 style="margin:0 0 8px; font-size:14px; letter-spacing:.2px; opacity:.95; color:#fff; font-weight:700;">
-        AMaDaS Research Group
-      </h4>
-
-      <div style="display:grid; gap:4px; font-size:13.5px; line-height:1.45; color:rgba(255,255,255,.62); font-weight:400;">
-        <div style="font-weight:400;">Tien Giang University</div>
-        <div style="font-weight:400;"><span style="color:rgba(255,255,255,.55); font-weight:400;">Phone:</span> (+84) 273 3 872 624</div>
-        <div style="font-weight:400;"><span style="color:rgba(255,255,255,.55); font-weight:400;">Email:</span> amadas@tgu.edu.vn</div>
-        <div style="font-weight:400;"><span style="color:rgba(255,255,255,.55); font-weight:400;">Address:</span> Than Binh Hamlet, Chau Thanh Commune, Dong Thap Province, Vietnam</div>
-      </div>
-    </div>
-
-    <div>
-      <h4 style="margin:0 0 8px; font-size:14px; letter-spacing:.2px; opacity:.95; color:#fff; font-weight:700;">
-        Contact
-      </h4>
-
-      <div style="display:grid; gap:4px; font-size:13.5px; line-height:1.45; color:rgba(255,255,255,.62); font-weight:400;">
-        <div style="font-weight:400; color:rgba(255,255,255,.70); margin-bottom: 3px;">Dr. Bui Quang Thinh</div>
-        <div style="font-weight:400; color:rgba(255,255,255,.70);">Principal Investigator</div>
-
-        <div style="font-weight:400;">
-          <span style="color:rgba(255,255,255,.55); font-weight:400;">Email:</span>
-          <a href="mailto:buiquangthinh@tgu.edu.vn"
-            style="color:rgba(255,255,255,.62); font-weight:400; text-decoration:none; border-bottom:1px solid transparent; padding-bottom:2px;">
-            buiquangthinh@tgu.edu.vn
-          </a>
-        </div>
-
-
-        <div style="font-weight:400;">
-          <span style="color:rgba(255,255,255,.55); font-weight:400;">Homepage:</span>
-          <a href="https://sites.google.com/view/quangthinhbui" target="_blank" rel="noopener"
-             style="color:rgba(255,255,255,.62); font-weight:400; text-decoration:none; border-bottom:1px solid transparent; padding-bottom:2px;">
-            sites.google.com/view/quangthinhbui
-          </a>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div style="width:min(1200px, calc(100% - 48px)); margin:14px auto 0; padding-top:12px; border-top:1px solid rgba(255,255,255,.10); color:rgba(255,255,255,.60); display:flex; justify-content:space-between; gap:12px;">
-    <small style="font-weight:400;">© <span id="year"></span> AMaDaS. All rights reserved.</small>
-  </div>
-
-  <style>
-    @media (max-width: 900px){
-      footer > div[style*="grid-template-columns"]{
-        grid-template-columns: 1fr !important;
-        gap: 18px !important;
-      }
-      footer > div[style*="justify-content:space-between"]{
-        flex-direction: column !important;
-        align-items: flex-start !important;
-      }
-    }
-  </style>
-</footer> -->
   <div id="footer-container"></div>
 
-  <script src="/js/include.js"></script>
-
-  <script src="/js/scroll.js"></script>
-  
-  <script src="/js/app.js"></script>
-  <script src="/js/showitem.js"></script>
-    <script src="/js/burger.js"></script>
+  <script src="../../js/include.js"></script>
+  <script src="../../js/scroll.js"></script>
+  <script src="../../js/app.js"></script>
+  <script src="../../js/burger.js"></script>
 
 </body>
-
 </html>
