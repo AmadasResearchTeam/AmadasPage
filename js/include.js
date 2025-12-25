@@ -2,7 +2,6 @@
 (() => {
   "use strict";
 
-  // tránh chạy 2 lần nếu lỡ include trùng
   if (window.__AMADAS_INCLUDE_READY__) return;
   window.__AMADAS_INCLUDE_READY__ = true;
 
@@ -36,24 +35,20 @@
     return root ? `${root}/${rel}` : rel;
   }
 
-  /* ====================== HEADER LINK REWRITE ====================== */
   function rewriteHeaderLinks(root) {
     const header = document.querySelector(".site-header");
     if (!header) return;
 
     const toRoot = (rel) => (root ? `${root}/${rel}` : rel);
 
-    // Home
     const homeLink = header.querySelector(
       'a.nav-link[href="index.html"], a.nav-link[href="./index.html"]'
     );
     if (homeLink) homeLink.setAttribute("href", toRoot("index.html"));
 
-    // Brand -> index#home
     const brand = header.querySelector("a.brand");
     if (brand) brand.setAttribute("href", toRoot("index.html#home"));
 
-    // Brand logo path
     const brandImg = header.querySelector("img.brand-logo");
     if (brandImg) {
       const src = brandImg.getAttribute("src") || "";
@@ -62,7 +57,6 @@
       }
     }
 
-    // Any link that starts with layout/ => rewrite to correct root
     header.querySelectorAll('a[href^="layout/"]').forEach((a) => {
       const href = a.getAttribute("href");
       if (!href) return;
@@ -249,7 +243,6 @@
       }
     });
 
-    // nếu đã có sẵn tetInit (script cache nhanh) thì init luôn
     if (typeof window.tetInit === "function") {
       try {
         window.tetInit();
@@ -263,7 +256,6 @@
       const root = getRootPrefix();
       await loadAllContainers(root);
 
-      // optional scripts
       ensureFilterPaperJs();
       ensureTetIfHome();
 
