@@ -6,6 +6,9 @@
   if (window.__AMADAS_SPA_READY__) return;
   window.__AMADAS_SPA_READY__ = true;
 
+  const getCurrentMain = () =>
+    document.querySelector("main.page") || document.querySelector("main");
+
   /* ====================== BASIC LOAD PARTIAL ====================== */
   async function loadPartial(selector, url) {
     const el = document.querySelector(selector);
@@ -72,7 +75,7 @@
     });
   }
 
-  /* ====================== ACTIVE NAV (GIỮ NGUYÊN Ý TƯỞNG CỦA BẠN) ====================== */
+  /* ====================== ACTIVE NAV ====================== */
   const ROUTE_RULES = [
     { friendly: "/team", file: "/layout/partials/contact.html" },
     { friendly: "/contact", file: "/layout/partials/contactus.html" },
@@ -145,55 +148,60 @@
     }
   }
 
-  /* ====================== LOAD CONTAINERS (NHƯ CŨ) ====================== */
+  /* ====================== LOAD CONTAINERS ====================== */
   async function loadAllContainers(root) {
     const p = (rel) => withRoot(root, rel);
 
-    // header/footer
-    if (document.querySelector("#header-container") && !document.querySelector("#header-container").innerHTML.trim())
+    const headerContainer = document.querySelector("#header-container");
+    if (headerContainer && !headerContainer.innerHTML.trim()) {
       await loadPartial("#header-container", p("layout/partials/header.html"));
+    }
 
     rewriteHeaderLinks(root);
     setActiveNavLink();
 
-    if (document.querySelector("#footer-container") && !document.querySelector("#footer-container").innerHTML.trim())
+    const footerContainer = document.querySelector("#footer-container");
+    if (footerContainer && !footerContainer.innerHTML.trim()) {
       await loadPartial("#footer-container", p("layout/partials/footer.html"));
+    }
 
     // home sections
-    if (document.querySelector("#hero-container") && !document.querySelector("#hero-container").innerHTML.trim())
-      await loadPartial("#hero-container", p("layout/partials/hero.html"));
+    const hero = document.querySelector("#hero-container");
+    if (hero && !hero.innerHTML.trim()) await loadPartial("#hero-container", p("layout/partials/hero.html"));
 
-    if (document.querySelector("#project-container") && !document.querySelector("#project-container").innerHTML.trim())
-      await loadPartial("#project-container", p("layout/partials/project.html"));
+    const project = document.querySelector("#project-container");
+    if (project && !project.innerHTML.trim()) await loadPartial("#project-container", p("layout/partials/project.html"));
 
-    if (document.querySelector("#blog-container") && !document.querySelector("#blog-container").innerHTML.trim())
-      await loadPartial("#blog-container", p("layout/partials/blog.html"));
+    const blog = document.querySelector("#blog-container");
+    if (blog && !blog.innerHTML.trim()) await loadPartial("#blog-container", p("layout/partials/blog.html"));
 
-    if (document.querySelector("#people-container") && !document.querySelector("#people-container").innerHTML.trim())
-      await loadPartial("#people-container", p("layout/partials/people.html"));
+    const people = document.querySelector("#people-container");
+    if (people && !people.innerHTML.trim()) await loadPartial("#people-container", p("layout/partials/people.html"));
 
     // team/contact
-    if (document.querySelector("#advisor-container") && !document.querySelector("#advisor-container").innerHTML.trim())
-      await loadPartial("#advisor-container", p("layout/contact/advisor.html"));
+    const advisor = document.querySelector("#advisor-container");
+    if (advisor && !advisor.innerHTML.trim()) await loadPartial("#advisor-container", p("layout/contact/advisor.html"));
 
-    if (document.querySelector("#core-container") && !document.querySelector("#core-container").innerHTML.trim())
-      await loadPartial("#core-container", p("layout/contact/coremember.html"));
+    const core = document.querySelector("#core-container");
+    if (core && !core.innerHTML.trim()) await loadPartial("#core-container", p("layout/contact/coremember.html"));
 
-    if (document.querySelector("#member-container") && !document.querySelector("#member-container").innerHTML.trim())
-      await loadPartial("#member-container", p("layout/contact/member.html"));
+    const member = document.querySelector("#member-container");
+    if (member && !member.innerHTML.trim()) await loadPartial("#member-container", p("layout/contact/member.html"));
 
     // publications
-    if (document.querySelector("#jounal-container") && !document.querySelector("#jounal-container").innerHTML.trim())
-      await loadPartial("#jounal-container", p("layout/publications/jounal.html"));
+    const jounal = document.querySelector("#jounal-container");
+    if (jounal && !jounal.innerHTML.trim()) await loadPartial("#jounal-container", p("layout/publications/jounal.html"));
 
-    if (document.querySelector("#Introjounal-container") && !document.querySelector("#Introjounal-container").innerHTML.trim())
+    const introJ = document.querySelector("#Introjounal-container");
+    if (introJ && !introJ.innerHTML.trim())
       await loadPartial("#Introjounal-container", p("layout/publications/IntroPub.html"));
 
-    if (document.querySelector("#conference-container") && !document.querySelector("#conference-container").innerHTML.trim())
+    const conf = document.querySelector("#conference-container");
+    if (conf && !conf.innerHTML.trim())
       await loadPartial("#conference-container", p("layout/publications/conference.html"));
   }
 
-  /* ====================== SPA: SWAP MAIN (NO RELOAD) ====================== */
+  /* ====================== SPA: CSS + URL REWRITE ====================== */
   const STATIC_CSS = new Set(
     Array.from(document.querySelectorAll('link[rel="stylesheet"][href]'))
       .map((l) => {
@@ -254,10 +262,45 @@
     });
   }
 
+  // QUAN TRỌNG: không fallback về doc.body nữa -> tránh nhét footer/header vào main
   function extractMain(doc) {
-    return doc.querySelector("main.page") || doc.querySelector("main") || doc.body;
+    return doc.querySelector("main.page") || doc.querySelector("main");
   }
 
+  function removeNestedShellContainers(mainEl) {
+    if (!mainEl) return;
+    // nếu vì lý do nào đó main bị nhét cả shell vào, ta gỡ bỏ phần đó để tránh double header/footer
+    mainEl.querySelectorAll("#header-container, #footer-container").forEach((n) => n.remove());
+  }
+
+  /* ====================== TET.JS LOADER (FIX mất tet khi start ở trang khác) ====================== */
+  function ensureScriptOnce(id, srcAbs) {
+    if (document.getElementById(id)) return;
+
+    const s = document.createElement("script");
+    s.id = id;
+    s.src = srcAbs;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  function ensureTetIfHome() {
+    const canon = toCanonicalPath(window.location.pathname);
+    if (canon !== "/") return;
+
+    // nếu tet.js nằm ở root: js/tet.js
+    const root = getRootPrefixFromPath(window.location.pathname);
+    const tetSrc = new URL(withRoot(root, "js/tet.js"), window.location.href).toString();
+
+    ensureScriptOnce("spa-tet-js", tetSrc);
+
+    // nếu tet.js có hàm init thì gọi lại cho chắc
+    if (typeof window.tetInit === "function") {
+      try { window.tetInit(); } catch {}
+    }
+  }
+
+  /* ====================== SPA: NAVIGATE ====================== */
   let navigating = false;
 
   async function spaNavigateTo(targetHref, { fromPop = false } = {}) {
@@ -266,6 +309,13 @@
 
     try {
       const targetUrl = new URL(targetHref, window.location.href);
+
+      // nếu trang hiện tại không có main -> fallback điều hướng thường
+      const currentMain = getCurrentMain();
+      if (!currentMain) {
+        window.location.href = targetUrl.href;
+        return;
+      }
 
       if (targetUrl.origin !== window.location.origin) {
         window.location.href = targetUrl.href;
@@ -290,13 +340,16 @@
       applyCssFromDoc(doc, fetchUrl.href);
 
       const incomingMain = extractMain(doc);
-      const currentMain = document.querySelector("main.page") || document.querySelector("main");
-
-      if (currentMain && incomingMain) {
-        currentMain.innerHTML = incomingMain.innerHTML;
-        if (!currentMain.classList.contains("page")) currentMain.classList.add("page");
-        rewriteRelativeUrls(currentMain, fetchUrl.href);
+      if (!incomingMain) {
+        // trang target không có main -> không chơi SPA, load thẳng để khỏi lỗi/double footer
+        window.location.href = targetUrl.href;
+        return;
       }
+
+      currentMain.innerHTML = incomingMain.innerHTML;
+      if (!currentMain.classList.contains("page")) currentMain.classList.add("page");
+      rewriteRelativeUrls(currentMain, fetchUrl.href);
+      removeNestedShellContainers(currentMain);
 
       if (!fromPop) {
         history.pushState({ spa: 1 }, "", targetUrl.pathname + targetUrl.search + (hash || ""));
@@ -307,6 +360,9 @@
       setActiveNavLink();
 
       await loadAllContainers(newRoot);
+
+      // FIX: quay về home thì đảm bảo tet.js có mặt
+      ensureTetIfHome();
 
       if (hash && hash.length > 1) {
         const id = hash.slice(1);
@@ -348,6 +404,9 @@
 
         if (href.startsWith("#")) return;
 
+        // nếu trang hiện tại không có main -> không chặn click
+        if (!getCurrentMain()) return;
+
         e.preventDefault();
         spaNavigateTo(href).catch(console.error);
       },
@@ -355,6 +414,7 @@
     );
 
     window.addEventListener("popstate", () => {
+      if (!getCurrentMain()) return;
       spaNavigateTo(window.location.href, { fromPop: true }).catch(console.error);
     });
   }
@@ -364,9 +424,12 @@
     try {
       const root = getRootPrefix();
       await loadAllContainers(root);
-      installSpaHeaderClick();
 
-      // debug nhanh: mở console sẽ thấy
+      if (getCurrentMain()) installSpaHeaderClick();
+
+      // FIX: nếu đang ở home ngay từ đầu -> đảm bảo tet.js
+      ensureTetIfHome();
+
       console.log("[AMADAS SPA] ready:", window.location.pathname);
     } catch (err) {
       console.error(err);
