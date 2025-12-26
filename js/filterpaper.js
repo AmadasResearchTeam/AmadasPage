@@ -100,13 +100,7 @@
   }
 
   function reindexWithinVisibleLists(container) {
-    // đánh số theo thứ tự item đang hiển thị (khi lọc năm)
-    const visibleItems = $$(".pub-year-section:not([hidden]) .pub-year-list .pub-item", container);
-    let idx = 1;
-    for (const li of visibleItems) {
-      const s = $(".pub-index", li);
-      if (s) s.textContent = idx++;
-    }
+    return;
   }
 
   function buildUI() {
