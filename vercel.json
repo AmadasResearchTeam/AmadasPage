@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/team", "destination": "/layout/partials/contact.html" },
     { "source": "/contact", "destination": "/layout/partials/contactus.html" },
-    { "source": "/publications", "destination": "/layout/publications/publication.html" }
+    { "source": "/publications", "destination": "/layout/publications/publication.html" },
+    { "source": "/advisor", "destination": "/layout/partials/scientificAdvisor.html" }
   ],
   "redirects": [
     {
@@ -18,6 +19,11 @@
     {
       "source": "/layout/publications/publication.html",
       "destination": "/publications",
+      "permanent": true
+    },
+    {
+      "source": "/layout/partials/scientificAdvisor.html",
+      "destination": "/advisor",
       "permanent": true
     },
     {
