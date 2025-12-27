@@ -388,6 +388,7 @@ main.page{
 /* Subtitle canh trái */
 .hero-subtitle{
   text-align: left;
+  color: var(--muted)
 }
 
 /* List spacing */
@@ -401,21 +402,16 @@ main.page{
   line-height: 1.8;
 }
 
-/* Item: justify + màu muted */
 .hero-directions .hero-list li{
   position: relative;
-  padding-left: 1.25rem;     /* chừa chỗ cho tam giác */
+  padding-left: 1.25rem;   
   margin: 0 0 10px 0;
 
-  /* Justify cross-browser */
   text-align: justify;
-  /* text-justify chỉ có ý nghĩa tốt trên một số engine, nhưng để vẫn ok */
   text-justify: inter-word;
 
-  /* Dòng cuối: Safari/Chrome ổn; Firefox có thể bỏ qua => vẫn chấp nhận */
   text-align-last: left;
 
-  /* Hyphenation: cần lang="en" ở <html> để hiệu quả tốt */
   -webkit-hyphens: auto;
   -ms-hyphens: auto;
   hyphens: auto;
@@ -423,18 +419,16 @@ main.page{
   color: var(--muted);
 }
 
-/* Triangle bullet (ổn định mọi trình duyệt) */
 .hero-directions .hero-list li::before{
   content: "▶";
   position: absolute;
   left: 0;
-  top: 0.15em;               /* canh theo baseline */
+  top: 0.15em;            
   color: var(--muted);
   font-size: 0.95em;
   line-height: 1;
 }
 
-/* Keyword nổi hơn (đang bọc <u>) */
 .hero-directions .hero-list li u{
   text-decoration: none;
   color: var(--text);
@@ -443,7 +437,6 @@ main.page{
   padding-bottom: 2px;
 }
 
-/* Optional: nếu muốn hover nhẹ mà vẫn “sạch” */
 .hero-directions .hero-list li:hover{
   filter: brightness(1.05);
 }
