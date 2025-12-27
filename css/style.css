@@ -381,68 +381,69 @@ main.page{
   }
 }
 
+/* =========================
+   HERO DIRECTIONS (Cross-browser)
+   ========================= */
 
-/* ===== Hero directions: nicer typography + layout ===== */
-.hero-directions{
-  width: 100%;
+/* Subtitle canh trái */
+.hero-subtitle{
   text-align: left;
-  margin-top: 18px;
-  max-width: 100vw;           /* tránh dòng quá dài */
 }
 
-/* tiêu đề nhỏ */
-.hero-directions .hero-subtitle{
-  font-size: clamp(1.05rem, 1.1vw + 0.8rem, 1.35rem);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  margin: 0 0 14px 0;
-  line-height: 1.25;
-}
-
-/* list dạng “card” + bullet custom */
+/* List spacing */
 .hero-directions .hero-list{
   margin: 0;
   padding: 0;
-  list-style: none;           /* bỏ bullet mặc định */
-  display: grid;
-  gap: 12px;
+  list-style: none;          /* bỏ bullet mặc định */
 }
 
+.hero-list{
+  line-height: 1.8;
+}
+
+/* Item: justify + màu muted */
 .hero-directions .hero-list li{
   position: relative;
-  padding: 12px 14px 12px 34px;     /* chừa chỗ bullet */
-  line-height: 1.6;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  backdrop-filter: blur(6px);
+  padding-left: 1.25rem;     /* chừa chỗ cho tam giác */
+  margin: 0 0 10px 0;
+
+  /* Justify cross-browser */
+  text-align: justify;
+  /* text-justify chỉ có ý nghĩa tốt trên một số engine, nhưng để vẫn ok */
+  text-justify: inter-word;
+
+  /* Dòng cuối: Safari/Chrome ổn; Firefox có thể bỏ qua => vẫn chấp nhận */
+  text-align-last: left;
+
+  /* Hyphenation: cần lang="en" ở <html> để hiệu quả tốt */
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+
+  color: var(--muted);
 }
 
-/* bullet đẹp hơn */
+/* Triangle bullet (ổn định mọi trình duyệt) */
 .hero-directions .hero-list li::before{
-  content: "";
+  content: "▶";
   position: absolute;
-  left: 14px;
-  top: 18px;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.75);
+  left: 0;
+  top: 0.15em;               /* canh theo baseline */
+  color: var(--muted);
+  font-size: 0.95em;
+  line-height: 1;
 }
 
-/* underline "sang" hơn cho các cụm <u> */
-.hero-directions u{
-  text-decoration: none;                 /* bỏ underline mặc định */
+/* Keyword nổi hơn (đang bọc <u>) */
+.hero-directions .hero-list li u{
+  text-decoration: none;
+  color: var(--text);
   font-weight: 800;
-  border-bottom: 2px solid rgba(255,255,255,0.55);
+  border-bottom: 2px solid rgba(255,255,255,0.45);
   padding-bottom: 2px;
 }
 
-/* hover nhẹ (tuỳ thích) */
+/* Optional: nếu muốn hover nhẹ mà vẫn “sạch” */
 .hero-directions .hero-list li:hover{
-  transform: translateY(-1px);
-  transition: 160ms ease;
-  border-color: rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.06);
+  filter: brightness(1.05);
 }
-
