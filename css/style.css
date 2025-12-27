@@ -385,17 +385,15 @@ main.page{
    HERO DIRECTIONS (Cross-browser)
    ========================= */
 
-/* Subtitle canh trái */
 .hero-subtitle{
   text-align: left;
   color: var(--muted)
 }
 
-/* List spacing */
 .hero-directions .hero-list{
   margin: 0;
   padding: 0;
-  list-style: none;          /* bỏ bullet mặc định */
+  list-style: none;         
 }
 
 .hero-list{
