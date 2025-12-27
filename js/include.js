@@ -176,6 +176,10 @@
     if (colabf && !colabf.innerHTML.trim())
       await loadPartial("#colab-container", p("layout/contact/Collaborators.html"));
 
+    const asslabf = document.querySelector("#assistant-container");
+    if (asslabf && !asslabf.innerHTML.trim())
+      await loadPartial("#assistant-container", p("layout/contact/assistant.html"));
+
     // publications
     const jounal = document.querySelector("#jounal-container");
     if (jounal && !jounal.innerHTML.trim())
