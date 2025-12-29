@@ -20,7 +20,7 @@
 
 .footer-subtitle{
   margin: 0 0 10px;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: .2px;
   opacity: .95;
 }
@@ -29,7 +29,7 @@
   margin: 0;
   color: var(--muted);
   line-height: 1.8;
-  font-size: 13.5px;
+  font-size: 12px;
 }
 
 .footer-links{
@@ -39,7 +39,7 @@
   display: grid;
   gap: 8px;
   color: var(--muted);
-  font-size: 13.5px;
+  font-size: 12px;
 }
 
 .footer-links a{
