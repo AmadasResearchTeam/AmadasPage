@@ -26,11 +26,10 @@
     popupBackdrop: "tet-popup-backdrop",
   };
 
-  // Đổi version nếu muốn popup xuất hiện lại sau khi đã tắt
-  const POPUP_VERSION = "v2"; // đổi v1 -> v2 để user đã tắt trước đó vẫn thấy lại
-  const POPUP_STORAGE_KEY = `amadas_tet_popup_dismissed_${POPUP_VERSION}`;
-
   let mounted = false;
+
+  // CHỈ nhớ trong 1 lần load (reload sẽ reset => popup hiện lại)
+  let dismissedThisLoad = false;
 
   function removeIfExists(id) {
     const el = document.getElementById(id);
@@ -85,28 +84,12 @@
   }
 
   // ---------- Popup (image only) ----------
-  function hasDismissedPopup() {
-    try {
-      return localStorage.getItem(POPUP_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  }
-
-  function setDismissedPopup() {
-    try {
-      localStorage.setItem(POPUP_STORAGE_KEY, "1");
-    } catch {
-      // ignore
-    }
-  }
-
   function closePopup() {
     const popup = document.getElementById(IDS.popup);
     if (!popup) return;
 
+    dismissedThisLoad = true;
     popup.classList.add("is-hiding");
-    setDismissedPopup();
 
     window.setTimeout(() => {
       removeIfExists(IDS.popup);
@@ -115,7 +98,7 @@
 
   function showPopup() {
     if (!mounted) return;
-    if (hasDismissedPopup()) return;
+    if (dismissedThisLoad) return;              // đã tắt trong lần load này
     if (document.getElementById(IDS.popup)) return;
 
     const popup = document.createElement("div");
@@ -125,7 +108,7 @@
     popup.setAttribute("aria-modal", "true");
     popup.setAttribute("aria-label", "Happy New Year");
 
-    // Backdrop (click ngoài để đóng)
+    // Backdrop
     const backdrop = document.createElement("div");
     backdrop.id = IDS.popupBackdrop;
     backdrop.className = "tet-popup__backdrop";
@@ -139,7 +122,7 @@
     const imgWrap = document.createElement("div");
     imgWrap.className = "tet-popup__imageWrap";
 
-    // Close button: góc trái trên cùng của hình
+    // Close button (góc trái trên hình)
     const closeBtn = document.createElement("button");
     closeBtn.id = IDS.popupClose;
     closeBtn.className = "tet-popup__close";
@@ -158,7 +141,6 @@
 
     imgWrap.appendChild(img);
 
-    // Assemble
     panel.appendChild(closeBtn);
     panel.appendChild(imgWrap);
 
@@ -201,13 +183,9 @@
 
     initDecor();
 
-    // Popup: bật sau 1 nhịp để tránh “giật”
     window.setTimeout(() => {
       showPopup();
     }, prefersReducedMotion ? 0 : 180);
-
-    // bật hoa giấy nếu muốn
-    // ensureConfettiCanvas();
   }
 
   function unmount() {
@@ -220,7 +198,6 @@
     removeIfExists(IDS.right);
     stopConfetti();
 
-    // rời home thì đóng popup luôn (nếu đang mở)
     removeIfExists(IDS.popup);
   }
 
@@ -234,7 +211,6 @@
     else unmount();
   }
 
-  // --- Bắt route change trong SPA: patch pushState/replaceState + popstate ---
   function installLocationChangeHook() {
     const fire = () => window.dispatchEvent(new Event("amadas:routechange"));
 
