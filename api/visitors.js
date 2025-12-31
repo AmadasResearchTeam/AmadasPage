@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     const now = Date.now();
-    const windowMs = 60_000; // online window 60s
+    const windowMs = 60_000; 
 
     const onlineKey = "amadas:online:zset";
     const totalKey = "amadas:visits:total";
@@ -29,14 +29,12 @@ export default async function handler(req, res) {
     const date = new Date().toISOString().slice(0, 10);
     const incOnceKey = `amadas:uniqueinc:${date}:${sid}`;
 
-    // Lưu ý: pipeline Upstash chạy tuần tự.
-    // Ta INCR trước, rồi nếu SET NX không OK thì DECR để giữ total đúng.
     const commands = [
       ["ZADD", onlineKey, now, sid],
       ["ZREMRANGEBYSCORE", onlineKey, 0, now - windowMs],
       ["ZCARD", onlineKey],
 
-      ["SET", incOnceKey, "1", "NX", "EX", 172800], // 2 days
+      ["SET", incOnceKey, "1", "NX", "EX", 172800], 
       ["INCR", totalKey],
       ["GET", totalKey],
     ];

@@ -3,7 +3,6 @@
   const TOTAL_ID = "total-visits";
   const ONLINE_ID = "online-now";
 
-  // stable session id per browser
   const KEY = "amadas_sid";
   let sid = localStorage.getItem(KEY);
   if (!sid) {
@@ -25,7 +24,6 @@
         body: JSON.stringify({ sid }),
       });
 
-      // debug rõ ràng (để bạn thấy lỗi ở console nếu có)
       if (!r.ok) {
         const t = await r.text();
         throw new Error(`API failed ${r.status}: ${t}`);
