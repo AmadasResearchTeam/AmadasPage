@@ -9,22 +9,21 @@ export default async function handler(req, res) {
     const { sid } = req.body || {};
     if (!sid) return res.status(400).json({ error: "Missing sid" });
 
-    // Env vars (set on Vercel)
-    const UPSTASH_REDIS_REST_URL = process.env.KV_REST_API_URL;   // https://xxxx.upstash.io
-    const UPSTASH_REDIS_REST_TOKEN = process.env.KV_REST_API_TOKEN; // token
+    const UPSTASH_REDIS_REST_URL = process.env.KV_REST_API_URL;  
+    const UPSTASH_REDIS_REST_TOKEN = process.env.KV_REST_API_TOKEN; 
 
     if (!UPSTASH_REDIS_REST_URL || !UPSTASH_REDIS_REST_TOKEN) {
       return res.status(500).json({ error: "Missing Upstash env vars" });
     }
 
     const now = Date.now();
-    const windowMs = 60_000; // online window: 60s
+    const windowMs = 60_000; 
     const onlineKey = "amadas:online:zset";
     const totalKey = "amadas:visits:total";
-    const uniqueKey = `amadas:unique:${new Date().toISOString().slice(0, 10)}`; // per day
+    const uniqueKey = `amadas:unique:${new Date().toISOString().slice(0, 10)}`; 
 
     const date = new Date().toISOString().slice(0, 10);
-    const incOnceKey = `amadas:uniqueinc:${date}:${sid}`; // one increment per sid per day
+    const incOnceKey = `amadas:uniqueinc:${date}:${sid}`; 
 
     const commands = [
       ["ZADD", onlineKey, now, sid],
