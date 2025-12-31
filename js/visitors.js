@@ -1,9 +1,7 @@
 // js/visitors.js
 (function () {
-  const totalEl = document.getElementById("visitor-total");
-  const onlineEl = document.getElementById("visitor-online");
-
-  if (!totalEl || !onlineEl) return;
+  const TOTAL_ID = "total-visits";
+  const ONLINE_ID = "online-now";
 
   // stable session id per browser
   const KEY = "amadas_sid";
@@ -13,26 +11,50 @@
     localStorage.setItem(KEY, sid);
   }
 
-  async function ping() {
+  function findEls() {
+    const totalEl = document.getElementById(TOTAL_ID);
+    const onlineEl = document.getElementById(ONLINE_ID);
+    return { totalEl, onlineEl };
+  }
+
+  async function ping(totalEl, onlineEl) {
     try {
       const r = await fetch("/api/visitors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sid }),
       });
-      if (!r.ok) throw new Error("API failed");
-      const data = await r.json();
 
+      // debug rõ ràng (để bạn thấy lỗi ở console nếu có)
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`API failed ${r.status}: ${t}`);
+      }
+
+      const data = await r.json();
       totalEl.textContent = typeof data.total === "number" ? data.total.toLocaleString() : "...";
       onlineEl.textContent = typeof data.online === "number" ? data.online.toLocaleString() : "...";
     } catch (e) {
-      // fallback UI
       totalEl.textContent = "...";
       onlineEl.textContent = "...";
+      console.error("[visitors] ping error:", e);
     }
   }
 
-  // first ping + keep alive
-  ping();
-  setInterval(ping, 15_000); // update every 15s
+  function startWhenReady() {
+    const { totalEl, onlineEl } = findEls();
+    if (!totalEl || !onlineEl) {
+      setTimeout(startWhenReady, 200);
+      return;
+    }
+
+    ping(totalEl, onlineEl);
+    setInterval(() => ping(totalEl, onlineEl), 15000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startWhenReady);
+  } else {
+    startWhenReady();
+  }
 })();

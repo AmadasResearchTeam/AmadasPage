@@ -9,22 +9,28 @@ export default async function handler(req, res) {
     const { sid } = req.body || {};
     if (!sid) return res.status(400).json({ error: "Missing sid" });
 
-    const UPSTASH_REDIS_REST_URL = process.env.KV_REST_API_URL;  
-    const UPSTASH_REDIS_REST_TOKEN = process.env.KV_REST_API_TOKEN; 
+    const UPSTASH_REDIS_REST_URL = process.env.KV_REST_API_URL;
+    const UPSTASH_REDIS_REST_TOKEN = process.env.KV_REST_API_TOKEN;
 
     if (!UPSTASH_REDIS_REST_URL || !UPSTASH_REDIS_REST_TOKEN) {
-      return res.status(500).json({ error: "Missing Upstash env vars" });
+      return res.status(500).json({
+        error: "Missing Upstash env vars",
+        hasUrl: !!UPSTASH_REDIS_REST_URL,
+        hasToken: !!UPSTASH_REDIS_REST_TOKEN,
+      });
     }
 
     const now = Date.now();
-    const windowMs = 60_000; 
+    const windowMs = 60_000; // online window 60s
+
     const onlineKey = "amadas:online:zset";
     const totalKey = "amadas:visits:total";
-    const uniqueKey = `amadas:unique:${new Date().toISOString().slice(0, 10)}`; 
 
     const date = new Date().toISOString().slice(0, 10);
-    const incOnceKey = `amadas:uniqueinc:${date}:${sid}`; 
+    const incOnceKey = `amadas:uniqueinc:${date}:${sid}`;
 
+    // Lưu ý: pipeline Upstash chạy tuần tự.
+    // Ta INCR trước, rồi nếu SET NX không OK thì DECR để giữ total đúng.
     const commands = [
       ["ZADD", onlineKey, now, sid],
       ["ZREMRANGEBYSCORE", onlineKey, 0, now - windowMs],
@@ -32,6 +38,7 @@ export default async function handler(req, res) {
 
       ["SET", incOnceKey, "1", "NX", "EX", 172800], // 2 days
       ["INCR", totalKey],
+      ["GET", totalKey],
     ];
 
     const resp = await fetch(`${UPSTASH_REDIS_REST_URL}/pipeline`, {
@@ -50,19 +57,12 @@ export default async function handler(req, res) {
 
     const data = await resp.json();
 
-    // data[i].result holds result for each command
     const online = Number(data?.[2]?.result ?? 0);
 
-    // SET NX result: "OK" nếu set thành công, null nếu đã tồn tại
-    const setNxResult = data?.[3]?.result;
-    let total;
+    const setNxResult = data?.[3]?.result; 
+    let total = Number(data?.[5]?.result ?? 0);
 
-    if (setNxResult === "OK") {
-      // INCR was executed; but should count only when unique => OK
-      total = Number(data?.[4]?.result ?? 0);
-    } else {
-      // If not unique today, we must revert the INCR effect.
-      // We do a DECR to keep total accurate.
+    if (setNxResult !== "OK") {
       const fix = await fetch(`${UPSTASH_REDIS_REST_URL}/pipeline`, {
         method: "POST",
         headers: {
@@ -71,11 +71,11 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify([["DECR", totalKey], ["GET", totalKey]]),
       });
+
       const fixData = await fix.json();
-      total = Number(fixData?.[1]?.result ?? 0);
+      total = Number(fixData?.[1]?.result ?? total);
     }
 
-    // no-cache
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({ total, online });
   } catch (e) {
