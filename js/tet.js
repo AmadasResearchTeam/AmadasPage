@@ -13,13 +13,22 @@
   const ASSETS = {
     lanternLeft: "img/holiday/Latern_left.png",
     lanternRight: "img/holiday/Latern_right.png",
+    popupImage: "img/holiday/happynewyear.png",
   };
 
   const IDS = {
     left: "tet-lantern-left",
     right: "tet-lantern-right",
     confetti: "confetti-canvas",
+
+    popup: "tet-popup",
+    popupClose: "tet-popup-close",
+    popupBackdrop: "tet-popup-backdrop",
   };
+
+  // Đổi version nếu muốn popup xuất hiện lại sau khi đã tắt
+  const POPUP_VERSION = "v2"; // đổi v1 -> v2 để user đã tắt trước đó vẫn thấy lại
+  const POPUP_STORAGE_KEY = `amadas_tet_popup_dismissed_${POPUP_VERSION}`;
 
   let mounted = false;
 
@@ -75,6 +84,95 @@
     });
   }
 
+  // ---------- Popup (image only) ----------
+  function hasDismissedPopup() {
+    try {
+      return localStorage.getItem(POPUP_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function setDismissedPopup() {
+    try {
+      localStorage.setItem(POPUP_STORAGE_KEY, "1");
+    } catch {
+      // ignore
+    }
+  }
+
+  function closePopup() {
+    const popup = document.getElementById(IDS.popup);
+    if (!popup) return;
+
+    popup.classList.add("is-hiding");
+    setDismissedPopup();
+
+    window.setTimeout(() => {
+      removeIfExists(IDS.popup);
+    }, 200);
+  }
+
+  function showPopup() {
+    if (!mounted) return;
+    if (hasDismissedPopup()) return;
+    if (document.getElementById(IDS.popup)) return;
+
+    const popup = document.createElement("div");
+    popup.id = IDS.popup;
+    popup.className = "tet-popup";
+    popup.setAttribute("role", "dialog");
+    popup.setAttribute("aria-modal", "true");
+    popup.setAttribute("aria-label", "Happy New Year");
+
+    // Backdrop (click ngoài để đóng)
+    const backdrop = document.createElement("div");
+    backdrop.id = IDS.popupBackdrop;
+    backdrop.className = "tet-popup__backdrop";
+    backdrop.addEventListener("click", closePopup);
+
+    // Panel
+    const panel = document.createElement("div");
+    panel.className = "tet-popup__panel";
+
+    // Image wrap
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "tet-popup__imageWrap";
+
+    // Close button: góc trái trên cùng của hình
+    const closeBtn = document.createElement("button");
+    closeBtn.id = IDS.popupClose;
+    closeBtn.className = "tet-popup__close";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Đóng");
+    closeBtn.innerHTML = "✕";
+    closeBtn.addEventListener("click", closePopup);
+
+    // Image
+    const img = document.createElement("img");
+    img.src = ASSETS.popupImage;
+    img.alt = "Happy New Year";
+    img.loading = "eager";
+    img.decoding = "async";
+    img.draggable = false;
+
+    imgWrap.appendChild(img);
+
+    // Assemble
+    panel.appendChild(closeBtn);
+    panel.appendChild(imgWrap);
+
+    popup.appendChild(backdrop);
+    popup.appendChild(panel);
+    document.body.appendChild(popup);
+
+    // ESC to close
+    const onKeydown = (e) => {
+      if (e.key === "Escape") closePopup();
+    };
+    window.addEventListener("keydown", onKeydown, { once: true });
+  }
+
   // ---------- Confetti (optional) ----------
   const confetti = {
     canvas: null,
@@ -102,7 +200,13 @@
     document.body.classList.add("page-home");
 
     initDecor();
-    // bật hoa giấy
+
+    // Popup: bật sau 1 nhịp để tránh “giật”
+    window.setTimeout(() => {
+      showPopup();
+    }, prefersReducedMotion ? 0 : 180);
+
+    // bật hoa giấy nếu muốn
     // ensureConfettiCanvas();
   }
 
@@ -115,6 +219,9 @@
     removeIfExists(IDS.left);
     removeIfExists(IDS.right);
     stopConfetti();
+
+    // rời home thì đóng popup luôn (nếu đang mở)
+    removeIfExists(IDS.popup);
   }
 
   function isHomeRoute() {

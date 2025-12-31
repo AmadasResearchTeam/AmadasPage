@@ -1,0 +1,152 @@
+/* css/tet.css */
+
+/* ---------------------------
+   Lantern decor
+---------------------------- */
+.tet-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  z-index: 2000;
+}
+
+.tet-fixed img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.tet-lantern-left {
+  left: 16px;
+  top: 0;
+  width: 150px;
+}
+
+.tet-lantern-right {
+  left: auto;
+  right: 16px;
+  top: 0;
+  width: 150px;
+}
+
+.tet-inner {
+  transform-origin: top center;
+}
+
+.tet-wobble {
+  animation: tetWobble 3.2s ease-in-out infinite;
+}
+
+@keyframes tetWobble {
+  0%   { transform: rotate(-2.5deg) translateY(0); }
+  50%  { transform: rotate(2.5deg) translateY(2px); }
+  100% { transform: rotate(-2.5deg) translateY(0); }
+}
+
+/* ---------------------------
+   Popup Happy New Year (image only)
+---------------------------- */
+.tet-popup {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+
+  /* animation */
+  animation: tetFadeIn 180ms ease-out both;
+}
+
+@keyframes tetFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tet-popup.is-hiding {
+  animation: tetFadeOut 160ms ease-in both;
+}
+
+@keyframes tetFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Backdrop để click ra ngoài là đóng */
+.tet-popup__backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+/* Panel chứa ảnh */
+.tet-popup__panel {
+  position: relative;
+  width: min(860px, 92vw);
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+  overflow: visible;
+  z-index: 1;
+}
+
+/* Ảnh chính */
+.tet-popup__imageWrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tet-popup__imageWrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Nút tắt: góc trái trên cùng của hình */
+.tet-popup__close {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 22px;
+  line-height: 36px;
+  text-align: center;
+  z-index: 2;
+}
+
+.tet-popup__close:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+@media (max-width: 480px) {
+  .tet-lantern-left,
+  .tet-lantern-right {
+    width: 120px;
+  }
+
+  .tet-popup__panel {
+    width: min(92vw, 520px);
+  }
+
+  .tet-popup__close {
+    top: 8px;
+    left: 8px;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+  }
+}
