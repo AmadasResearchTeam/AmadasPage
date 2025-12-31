@@ -79,13 +79,11 @@
   to { opacity: 0; }
 }
 
-/* Backdrop để click ra ngoài là đóng */
 .tet-popup__backdrop {
   position: absolute;
   inset: 0;
 }
 
-/* Panel chứa ảnh */
 .tet-popup__panel {
   position: relative;
   width: min(860px, 92vw);
@@ -96,7 +94,6 @@
   z-index: 1;
 }
 
-/* Ảnh chính */
 .tet-popup__imageWrap {
   position: relative;
   border-radius: 16px;
@@ -110,7 +107,6 @@
   height: auto;
 }
 
-/* Nút tắt: góc trái trên cùng của hình */
 .tet-popup__close {
   position: absolute;
   top: 10px;
