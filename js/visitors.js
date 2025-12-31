@@ -47,7 +47,7 @@
     }
 
     ping(totalEl, onlineEl);
-    setInterval(() => ping(totalEl, onlineEl), 15000);
+    setInterval(() => ping(totalEl, onlineEl), 3000);
   }
 
   if (document.readyState === "loading") {
