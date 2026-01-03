@@ -183,9 +183,10 @@
 
     initDecor();
 
-    window.setTimeout(() => {
-      showPopup();
-    }, prefersReducedMotion ? 0 : 180);
+    //tắtt popup
+    // window.setTimeout(() => {
+    //   showPopup();
+    // }, prefersReducedMotion ? 0 : 180);
   }
 
   function unmount() {
